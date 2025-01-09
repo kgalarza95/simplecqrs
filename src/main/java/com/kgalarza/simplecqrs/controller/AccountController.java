@@ -7,7 +7,9 @@ import com.kgalarza.simplecqrs.cqrs.query.GetAccountQuery;
 import com.kgalarza.simplecqrs.cqrs.query.GetAllAccountsQuery;
 import com.kgalarza.simplecqrs.handler.AccountCommandHandler;
 import com.kgalarza.simplecqrs.handler.AccountQueryHandler;
+import com.kgalarza.simplecqrs.handler.AccountViewQueryHandler;
 import com.kgalarza.simplecqrs.model.Account;
+import com.kgalarza.simplecqrs.model.AccountBalanceView;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,10 +20,12 @@ public class AccountController {
 
     private final AccountCommandHandler commandHandler;
     private final AccountQueryHandler queryHandler;
+    private final AccountViewQueryHandler accountViewQueryHandler;
 
-    public AccountController(AccountCommandHandler commandHandler, AccountQueryHandler queryHandler) {
+    public AccountController(AccountCommandHandler commandHandler, AccountQueryHandler queryHandler, AccountViewQueryHandler accountViewQueryHandler) {
         this.commandHandler = commandHandler;
         this.queryHandler = queryHandler;
+        this.accountViewQueryHandler = accountViewQueryHandler;
     }
 
     @PostMapping
@@ -49,5 +53,15 @@ public class AccountController {
     @GetMapping
     public List<Account> getAllAccounts() {
         return queryHandler.handle(new GetAllAccountsQuery());
+    }
+
+    @GetMapping("/view/{id}")
+    public AccountBalanceView getAccountView(@PathVariable String id) {
+        return accountViewQueryHandler.handle(new GetAccountQuery(id));
+    }
+
+    @GetMapping("/view")
+    public List<AccountBalanceView> getAllAccountsView() {
+        return accountViewQueryHandler.handle(new GetAllAccountsQuery());
     }
 }
